@@ -2,6 +2,7 @@ import logging
 import sys
 
 def setup_logger(name=__name__, level=logging.INFO):
+    # ロガーを設定して返す
     logger = logging.getLogger(name)
     logger.setLevel(level)
 

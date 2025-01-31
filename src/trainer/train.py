@@ -13,12 +13,14 @@ from .lightning_trainer import HDCETrainerModule
 from ..data.dataset import HDCETextGraphDataset
 
 def set_seed(seed):
+    # 乱数シードを一括設定
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
 
 def load_dataset():
+    # 簡単なダミーデータセットを生成
     data_list = []
     for i in range(10):
         data_list.append({
@@ -40,11 +42,14 @@ def main():
     parser.add_argument("--config", type=str, default="config/default.yaml")
     args = parser.parse_args()
     
+    # 設定ファイルを読み込む
     with open(args.config, "r") as f:
         config = yaml.safe_load(f)
     
+    # シード固定
     set_seed(config["training"]["seed"])
     
+    # モデルを初期化
     hdce_model = HDCEModel(
         transformer_model_name = config["model"]["transformer_model_name"],
         embed_dim = config["model"]["embed_dim"],
@@ -53,15 +58,19 @@ def main():
         knowledge_graph_file = config["model"]["knowledge_graph_file"]
     )
     
+    # LightningのTrainerModuleを作成
     trainer_module = HDCETrainerModule(hdce_model, lr=config["training"]["learning_rate"])
     
+    # データセットとDataLoaderを用意
     dataset = load_dataset()
     train_loader = DataLoader(dataset, batch_size=config["training"]["batch_size"], shuffle=True)
     
+    # PyTorch LightningのTrainerを作成
     trainer = pl.Trainer(
         max_epochs=config["training"]["max_epochs"],
         accelerator="auto"
     )
+    # 学習を実行
     trainer.fit(trainer_module, train_loader)
 
 if __name__ == "__main__":
