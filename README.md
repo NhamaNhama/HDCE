@@ -42,23 +42,23 @@ HDCE（Hybrid Dynamic Contextualization Embedding）は、大きく3つのレイ
 
 通常のAttention機構は
 
-\text{Attention}(Q,K,V) = \text{Softmax}\!\Bigl(\frac{QK^T}{\sqrt{d_k}}\Bigr)\,V
+$$\text{Attention}(Q,K,V) = \text{Softmax}\!\Bigl(\frac{QK^T}{\sqrt{d_k}}\Bigr)\,V$$
 
 のように、類似度（スコア）をsoftmaxで正規化して重みづけを行います。一方HDCEでは、計算されたスコア行列にゲートマスク  M_{gate}  を要素ごとに乗算する形で導入しています：
 
 
-\text{Attention}(Q,K,V)
-= \text{Softmax}\!\Bigl(\frac{QK^T}{\sqrt{d_k}} \odot M_{gate}\Bigr)\,V.
+$$\text{Attention}(Q,K,V)
+= \text{Softmax}\!\Bigl(\frac{QK^T}{\sqrt{d_k}} \odot M_{gate}\Bigr)\,V.$$
 
 
 このときのゲートマスク
 
-M_{gate}^{(i,j)} = \sigma\bigl(f_{conflict}(x_i, x_j)\bigr)
+$$M_{gate}^{(i,j)} = \sigma\bigl(f_{conflict}(x_i, x_j)\bigr)$$
 
 は、単語（あるいはトークン）ペア (x_i, x_j) が文脈上でどの程度衝突（矛盾）しているかを表します。直感的には、矛盾度が高いペアほどAttentionの重みが抑制される仕組みです。
 	•	矛盾度の具体例
 例文「彼は火を通したが、冷たかった」では「火」と「冷たい」の共起は一般的には矛盾要素を含みます。
-	•	ここで  f_{conflict}(x_i, x_j)  は一種のスコアリング関数であり、「語義情報」「共起頻度」「反対概念辞書」などを組み合わせて実装できます。
+	•	ここで  $f_{conflict}(x_i, x_j)$  は一種のスコアリング関数であり、「語義情報」「共起頻度」「反対概念辞書」などを組み合わせて実装できます。
 	•	出力をシグモイド \sigma で0～1の範囲に圧縮し、結果が1に近いほど「矛盾している」と見なす。
 
 (b) 量子化埋め込み圧縮
@@ -82,14 +82,14 @@ HDCEは文書全体を単に「文の列」として処理するのではなく�
 
 (b) グラフ畳み込みの改良アルゴリズム
 
-意味グラフをGNN（Graph Neural Network）で処理する際に、HDCEでは関係型の重み行列 \,W_{rel}^{(r)} と経路長の正規化 \,\frac{1}{\|\mathrm{Path}(u \to v)\|} を導入しています。
+意味グラフをGNN（Graph Neural Network）で処理する際に、HDCEでは関係型の重み行列$$ \,W_{rel}^{(r)} $$と経路長の正規化 $$\,\frac{1}{\|\mathrm{Path}(u \to v)\|} $$を導入しています。
 具体的な更新式は
 \[
-h_v^{(l+1)}
+$$h_v^{(l+1)}
 = \mathrm{ReLU}\biggl(\sum_{u \in N(v)} \frac{W_{rel}^{(r)}\,h_u^{(l)}}{\|\mathrm{Path}(u \to v)\|}\biggr).
-\]
-	•	r はエッジ (u,v) の種類を指し示し、因果関係用、対比関係用など用途に応じて別の重み行列を利用する。
-	•	\|\mathrm{Path}(u \to v)\| はグラフ上でのパス長を表し、長い経路ほど埋め込みの寄与を小さくする傾向をもたせる。
+\]$$
+	•	$r$ はエッジ $(u,v)$ の種類を指し示し、因果関係用、対比関係用など用途に応じて別の重み行列を利用する。
+	•	$\|\mathrm{Path}(u \to v)\|$ はグラフ上でのパス長を表し、長い経路ほど埋め込みの寄与を小さくする傾向をもたせる。
 
 これにより、単に隣接ノードを集計するのではなく、関係の種類・距離に応じたきめ細かい情報伝播が可能になります。
 
@@ -109,12 +109,12 @@ h_v^{(l+1)}
 
 外部知識と文章内情報が衝突する際には、その「信頼度」をベイジアン推定で考慮します。
 
-P(\text{Truth} \mid E)
-= \frac{P(E \mid \text{Knowledge})\,P(\text{Knowledge})}{P(E)}.
+$$P(\text{Truth} \mid E)
+= \frac{P(E \mid \text{Knowledge})\,P(\text{Knowledge})}{P(E)}.$$
 
-	•	E はテキスト中の主張（あるいはその一部）
-	•	P(\text{Knowledge}) は外部KB上の知識の事前信頼度
-	•	P(E \mid \text{Knowledge}) は「その知識が正しいと仮定したときに、テキスト上の主張Eが正しい確率」
+	•	$E$ はテキスト中の主張（あるいはその一部）
+	•	$P(\text{Knowledge})$ は外部KB上の知識の事前信頼度
+	•	$P(E \mid \text{Knowledge})$ は「その知識が正しいと仮定したときに、テキスト上の主張Eが正しい確率」
 
 この推定により「文章の方が誤認しているのか、KBが古い/不正確なのか」をある程度定量的に判定し、最終的なコンテキスト表現を調整します。
 
@@ -127,7 +127,7 @@ P(\text{Truth} \mid E)
 
 HDCEでは、単に\mathbb{R}^d のような実ベクトル空間を使うのではなく、各次元を確率分布に対応づけます。式としては
 
-\mathcal{P} = \Bigl\{\, p \in [0,1]^n \mid \sum_{i=1}^n p_i = 1 \Bigr\}.
+$$\mathcal{P} = \Bigl\{\, p \in [0,1]^n \mid \sum_{i=1}^n p_i = 1 \Bigr\}.$$
 
 ここで n は「意味クラスタ」の総数を表すパラメータで、512や1024などが実用上使われることが多いです。テキスト中の単語や概念を「どのクラスターにどの程度属するか」を確率的に記述するため、曖昧な表現や多義性のある単語をうまく表現できる利点があります。
 
@@ -135,15 +135,15 @@ HDCEでは、単に\mathbb{R}^d のような実ベクトル空間を使うので
 
 各クラスタの重みを決定する際、次のようなsoftmaxベースの再重み付けを使います：
 
-\[
+$$\[
 p_i^{(t)} = \frac{\exp(z_i/\tau)}{\sum_j \exp(z_j/\tau)}
 \times \frac{\mathrm{TF\mbox{-}IDF}(w)}{\mathrm{Ambiguity}(w)},
-\]
-	•	 \tau  は温度パラメータ。これを下げると分布が尖り、上げると滑らかになる。
-	•	\( \mathrm{TF\mbox{-}IDF}(w) \) は単語  w  の重要度を示す従来指標。
-	•	 \mathrm{Ambiguity}(w)  は「同じスペル（または形態）だが複数の異なる意味を持つ場合」に大きくなる値。つまり曖昧な単語ほど、その確率分布が（無闇に尖らないよう）抑制される仕組みになっている。
+\]$$
+	•	 $\tau$  は温度パラメータ。これを下げると分布が尖り、上げると滑らかになる。
+	•	$\( \mathrm{TF\mbox{-}IDF}(w) \)$ は単語  $w$  の重要度を示す従来指標。
+	•	 $\mathrm{Ambiguity}(w)$  は「同じスペル（または形態）だが複数の異なる意味を持つ場合」に大きくなる値。つまり曖昧な単語ほど、その確率分布が（無闇に尖らないよう）抑制される仕組みになっている。
 
-こうして確率ベクトル p を時間ステップ t ごとに更新することで、文脈や新しい外部知識の到来によって単語の意味クラスター分布が変動する「動的な埋め込み」を実現します。
+こうして確率ベクトル $p$ を時間ステップ $t$ ごとに更新することで、文脈や新しい外部知識の到来によって単語の意味クラスター分布が変動する「動的な埋め込み」を実現します。
 
 
 2.2 メタ意味オントロジー
@@ -151,8 +151,8 @@ p_i^{(t)} = \frac{\exp(z_i/\tau)}{\sum_j \exp(z_j/\tau)}
 HDCEでは、WordNet等を拡張した「WordNet++」という動的なオントロジーデータベースを使うことも想定されています。このオントロジーは定期的にアップデートされ（たとえばクラウドソーシング等で新しい概念が登録される）、3階述語論理的な表現で新しい意味の創発を記述します：
 
 
-\exists x \Bigl(\mathrm{EmergentConcept}(x) \,\wedge\,
-\forall y\bigl(\mathrm{Context}(y) \to \mathrm{ManifestIn}(x,y)\bigr)\Bigr).
+$$\exists x \Bigl(\mathrm{EmergentConcept}(x) \,\wedge\,
+\forall y\bigl(\mathrm{Context}(y) \to \mathrm{ManifestIn}(x,y)\bigr)\Bigr).$$
 
 
 これは「ある概念 x は新たに生成されたものであり、任意の文脈 y において何らかの形で顕在化する」といった論理表現です。1時間あたり数千件以上の更新が起きても適応できるよう、HDCEは外部知識インターフェイスを通して必要なオントロジー情報を随時参照・更新可能です。
@@ -167,10 +167,10 @@ HDCEでは、WordNet等を拡張した「WordNet++」という動的なオント
 HDCEは過去の文脈や推論軌跡を参照するために、双方向LSTM（または類似の再帰ネット）をベースとしながら、ニューロモジュレーション的な重みづけを取り入れています。
 例えば
 
-c_t = \sum_{i=1}^k \alpha_i \,h_{t-i}
-\quad \text{where } \alpha_i = \sigma\bigl(\mathrm{TimeDecay}(i)\bigr),
+$$c_t = \sum_{i=1}^k \alpha_i \,h_{t-i}
+\quad \text{where } \alpha_i = \sigma\bigl(\mathrm{TimeDecay}(i)\bigr),$$
 
-ここで \mathrm{TimeDecay}(i) = e^{-\lambda i} のように単純な指数減衰を考えることが多いですが、文章の種類によっては複雑な減衰パターンを使うこともあります。
+ここで $\mathrm{TimeDecay}(i) = e^{-\lambda i}$ のように単純な指数減衰を考えることが多いですが、文章の種類によっては複雑な減衰パターンを使うこともあります。
 	•	重要なのは「過去の時点 t - i」の隠れ状態 h_{t-i} を、そのタイムラグ i によってスケールすることで、直近の文脈をより強く反映させる仕組みを簡潔に実現している点です。
 
 (b) 重要イベント検出アルゴリズム
@@ -178,9 +178,9 @@ c_t = \sum_{i=1}^k \alpha_i \,h_{t-i}
 文章が進むにつれて文脈は変わる一方、急に大きな話題転換や重大イベントが生じる場合があります。そこでHDCEでは以下のようにカルバック・ライブラー (KL) 発散を用いて「埋め込み空間の分布が急激に変化したかどうか」を検出します。
 
 
-D_{KL}(p_t \,\|\, p_{t-1}) > \theta
+$$D_{KL}(p_t \,\|\, p_{t-1}) > \theta
 \quad \Longrightarrow \quad
-\text{Memory Consolidation (重要な状態の保存や更新)}
+\text{Memory Consolidation (重要な状態の保存や更新)}$$
 
 	•	もし分布の変化が閾値 \theta を超えていれば、「新たな意味分布」が生まれたとみなし、その時点の状態を強制的にメモリに反映・統合します。
 
@@ -188,15 +188,15 @@ D_{KL}(p_t \,\|\, p_{t-1}) > \theta
 
 (a) オンライン学習による個人化
 
-HDCEをユーザごとに適応させるため、グローバルパラメータ \theta_{global} に対して、差分 \Delta\theta を加算する形で個人化パラメータを生成します。
+HDCEをユーザごとに適応させるため、グローバルパラメータ \theta_{global} に対して、差分 $\Delta\theta$ を加算する形で個人化パラメータを生成します。
 
 
-\theta_{user}
+$$\theta_{user}
 = \theta_{global} + \Delta\theta,
 \quad
-\Delta\theta \sim \mathcal{N}(\mu_{user}, \Sigma).
+\Delta\theta \sim \mathcal{N}(\mu_{user}, \Sigma).$$
 
-	•	ここで \mu_{user} はユーザ固有の平均的傾向（語彙選択や話題指向性など）を表し、\Sigma は共分散行列。
+	•	ここで $\mu_{user}$ はユーザ固有の平均的傾向（語彙選択や話題指向性など）を表し、\Sigma は共分散行列。
 	•	実際には、ハイパーネットワークと呼ばれる「パラメータを出力するネットワーク」を組み合わせることで、動的に \Delta\theta を生成し続ける手法が検討されています。
 
 4. 訓練プロトコルの革新点
@@ -210,10 +210,10 @@ HDCEの革新的な点の1つは、矛盾を検出するタスクを通じて事
 
 この際の損失関数はマージンベースのランキング損失のように構成されることがあります。ひとつの例として、
 
-\mathcal{L}{contra}
-= \sum{i,j} \max\bigl(0, \phi(x_i,x_j) - \phi(x_i,x_k) + \gamma\bigr),
+$$\mathcal{L}{contra}
+= \sum{i,j} \max\bigl(0, \phi(x_i,x_j) - \phi(x_i,x_k) + \gamma\bigr),$$
 
-ここで \phi(x_i,x_j) は2つの文 (x_i, x_j) の矛盾度合いを測るスコア。正例（矛盾）と負例（矛盾でない）のスコアに差をつけるように学習します。
+ここで $\phi(x_i,x_j)$ は2つの文 $(x_i, x_j)$ の矛盾度合いを測るスコア。正例（矛盾）と負例（矛盾でない）のスコアに差をつけるように学習します。
 
 
 4.2 推論経路予測
@@ -259,16 +259,16 @@ HDCEは多機能かつ動的に変化する仕組みを取り入れることで�
 	•	512次元や1024次元の確率ベクトルを扱うと、探索空間が膨大になり計算コストやメモリ使用量が跳ね上がる。
 	•	スパース正則化や低ランク射影を組み合わせることで、実際には各文脈で高い確率をとるクラスタだけに着目し、無駄な計算を削減する。
 
-\hat{p}
+$$\hat{p}
 = \mathrm{ReLU}(W p + b)
-\quad \text{s.t. } \mathrm{rank}(W) \le r.
+\quad \text{s.t. } \mathrm{rank}(W) \le r.$$
 
 	3.	個人化パラメータの衝突
 	•	多数のユーザごとにパラメータを最適化すると、モデル全体が煩雑化し、パラメータ同士の干渉が起こりやすい。
 	•	ハミング距離制約付き最適化などで衝突を回避する。
 
-\min_\theta \mathcal{L}
-\quad \text{s.t. } d_H(\theta_i, \theta_j) \ge \delta.
+$$\min_\theta \mathcal{L}$$
+\quad \text{s.t. } d_H(\theta_i, \theta_j) \ge \delta.$$
 
 	•	これは、ユーザ間でパラメータの「二進表現」があまりに近くなりすぎないよう制約する発想などが考えられる。
 
