@@ -89,8 +89,7 @@ $$\,W_{rel}^{(r)}$$
 $$\,\frac{1}{\|\mathrm{Path}(u \to v)\|}$$
 を導入しています。
 具体的な更新式は
-$$\[
-$$h_v^{(l+1)}
+$$\[h_v^{(l+1)}
 = \mathrm{ReLU}\biggl(\sum_{u \in N(v)} \frac{W_{rel}^{(r)}\,h_u^{(l)}}{\|\mathrm{Path}(u \to v)\|}\biggr).
 \]$$
 
