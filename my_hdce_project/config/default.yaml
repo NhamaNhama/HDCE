@@ -1,0 +1,15 @@
+model:
+  transformer_model_name: "bert-base-uncased"
+  embed_dim: 768
+  graph_num_relations: 4
+  gnn_num_layers: 2
+  knowledge_graph_file: "data/knowledge_graph.json"
+
+training:
+  batch_size: 16
+  max_epochs: 3
+  learning_rate: 3e-5
+  seed: 42
+
+logging:
+  level: "INFO" 

@@ -1,0 +1,12 @@
+torch>=1.13.0
+transformers>=4.30.2
+pytorch-lightning>=2.0.0
+torch-geometric>=2.2.0
+torch-scatter>=2.1.0
+torch-sparse>=0.6.16
+numpy>=1.23.5
+PyYAML>=6.0
+scipy>=1.10.0
+tqdm>=4.64.1
+pandas>=1.5.0
+# 必要に応じて追加 

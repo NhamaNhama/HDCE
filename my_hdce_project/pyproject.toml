@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hdce"
+version = "0.1.0"
+authors = [
+  { name="Your Name", email="your_email@example.com" }
+]
+description = "Hybrid Dynamic Contextualization Embedding"
+dependencies = [
+  "torch>=1.13.0",
+  "transformers>=4.30.2",
+  "pytorch-lightning>=2.0.0",
+  "torch-geometric>=2.2.0",
+  "PyYAML>=6.0"
+] 
