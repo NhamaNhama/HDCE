@@ -145,7 +145,8 @@ $$\[
 p_i^{(t)} = \frac{\exp(z_i/\tau)}{\sum_j \exp(z_j/\tau)}
 \times \frac{\mathrm{TF\mbox{-}IDF}(w)}{\mathrm{Ambiguity}(w)},
 \]$$
-• $\tau$  は温度パラメータ。これを下げると分布が尖り、上げると滑らかになる。
+
+•$\tau$  は温度パラメータ。これを下げると分布が尖り、上げると滑らかになる。
 
 •$\( \mathrm{TF\mbox{-}IDF}(w) \)$ は単語  $w$  の重要度を示す従来指標。
 
