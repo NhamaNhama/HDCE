@@ -7,7 +7,7 @@ curl \
 
 RUN pip install --no-cache-dir torch>=1.13.0
 
-RUN pip install --no-cache-dir torch-scatter -f \
+RUN pip install --no-cache-dir torch-scatter torch-sparse -f \
   https://data.pyg.org/whl/torch-2.0.1+cu117.html
 
 COPY requirements.txt .
