@@ -1,4 +1,4 @@
-# HDCE (Hybrid Dynamic Contextualization Embedding)
+# HDCE (Hybrid Dynamic Contextualization Embedding)の提案
 
 This project demonstrates a near-production-ready code structure for HDCE, leveraging:
 - **Local Context Encoder** (Hugging Face Transformers + Context Gate)
